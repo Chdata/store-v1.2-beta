@@ -101,7 +101,7 @@
 	"Item Purchase Successful"
 	{
 		"#format"			"{1:s}"
-		"en"				"You bought '{olive}{1}{default}'!"
+		"en"				"You bought '{olive}{1}{linen}'!"
 	}
 
 	"Refund"
@@ -133,27 +133,27 @@
 
 	"Shop Description"
 	{
-		"en"				"Buy awesome stuff here!"
+		"en"				"Spend your bits to unlock data!"
 	}
 
 	"Inventory Description"
 	{
-		"en"				"Equip or use your items."
+		"en"				"Access your data here."
 	}
 
 	"Refund Description"
 	{
-		"en"				"Not satisfied? Refund it here."
+		"en"				"The Recycling Bin!"
 	}
 
 	"Gift Description"
 	{
-		"en"				"Donate cash or items to the needy!"
+		"en"				"Upload your data to someone else!"
 	}
 
 	"Loadout Description"
 	{
-		"en"				"Configure all your items."
+		"en"				"Configure your store loadouts."
 	}
 
 	"Gift Type Menu Title"
@@ -168,12 +168,12 @@
 
 	"Gift Method Send"
 	{
-		"en"				"Send to player"
+		"en"				"Upload to player"
 	}
 
 	"Gift Method Drop"
 	{
-		"en"				"Drop on ground"
+		"en"				"Throw it on the ground"
 	}
 
 	"Item"
@@ -208,25 +208,25 @@
 	"Gift Item Dropped"
 	{
 		"#format"			"{1:s}"
-		"en"				"You dropped {olive}{1}{default}!"
+		"en"				"You dropped {olive}{1}{linen}!"
 	}
 
 	"Gift Credits Dropped"
 	{
 		"#format"			"{1:d}{2:s}"
-		"en"				"You dropped {olive}{1}{default} {2}!"
+		"en"				"You dropped {olive}{1}{linen} {2}!"
 	}
 
 	"Gift Credits Found"
 	{
 		"#format"			"{1:d},{2:s}"
-		"en"				"You found {olive}{1}{default} {2}!"
+		"en"				"You found {olive}{1}{linen} {2}!"
 	}
 
 	"Gift Item Found"
 	{
 		"#format"			"{1:s}"
-		"en"				"You found {olive}{1}{default}!"
+		"en"				"You found {olive}{1}{linen}!"
 	}
 
 	"No items"
@@ -237,13 +237,13 @@
 	"Gift Request Accept"
 	{
 		"#format"			"{1:s},{2:s}"
-		"en"				"{teamcolor}{1} {default}wants to give you {olive}{2}{default}. Type {teamcolor}!accept {default}to accept the gift."
+		"en"				"{teamcolor}{1} {linen}wants to give you {olive}{2}{linen}. Type {teamcolor}!accept {linen}to accept the gift."
 	}
 
 	"Gift Waiting to accept"
 	{
 		"#format"			"{1:s}"
-		"en"				"Waiting for {teamcolor}{1} {default}to accept the gift."
+		"en"				"Waiting for {teamcolor}{1} {linen}to accept the gift."
 	}	
 
 	"Not enough credits"
@@ -255,19 +255,19 @@
 	"Gift accepted - sender"
 	{
 		"#format"			"{1:s}"
-		"en"				"{teamcolor}{1} {default}has accepted your gift."
+		"en"				"{teamcolor}{1} {linen}has accepted your gift."
 	}
 
 	"Gift accepted - receiver"
 	{
 		"#format"			"{1:s}"
-		"en"				"You have accepted {teamcolor}{1}{default}'s gift."
+		"en"				"You have accepted {teamcolor}{1}{linen}'s gift."
 	}
 
 	"Already purchased item"
 	{
 		"#format"			"{1:s}"
-		"en"				"You have already purchased this item: {1}"
+		"en"				"You already have one of item: '{olive}{1}{linen}'"
 	}
 	
 	"You can't wear this item"

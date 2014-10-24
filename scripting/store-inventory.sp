@@ -6,6 +6,7 @@
 #include <store/store-inventory>
 #include <store/store-logging>
 #include <store/store-loadout>
+#include <morecolors>
 
 new bool:g_hideEmptyCategories = false;
 
@@ -204,18 +205,18 @@ public GetItemsForCategoryCallback(ids[], bool:equipped[], itemCount[], count, l
 	decl String:displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 	Store_GetCategoryDisplayName(categoryId, displayName, sizeof(displayName));
 
-	//PrintToChatAll("%s %i %i %i", displayName, g_hideEmptyCategories, count, left);
+	//CPrintToChatAll("%s %i %i %i", displayName, g_hideEmptyCategories, count, left);
 
-	//decl String:description[STORE_MAX_DESCRIPTION_LENGTH];
-	//Store_GetCategoryDescription(categoryId, description, sizeof(description));
+	decl String:description[STORE_MAX_DESCRIPTION_LENGTH];
+	Store_GetCategoryDescription(categoryId, description, sizeof(description));
 
-	//decl String:itemText[sizeof(displayName) + 1 + sizeof(description)];
-	//Format(itemText, sizeof(itemText), "%s\n%s", displayName, description);
+	decl String:itemText[sizeof(displayName) + 1 + sizeof(description)];
+	Format(itemText, sizeof(itemText), "%s\n%s", displayName, description);
 	
 	decl String:itemValue[8];
 	IntToString(categoryId, itemValue, sizeof(itemValue));
 	
-	AddMenuItem(categories_menu[client], itemValue, displayName);
+	AddMenuItem(categories_menu[client], itemValue, itemText);
 
 	if (left == 0)
 	{
@@ -286,7 +287,7 @@ public GetUserItemsCallback(ids[], bool:equipped[], itemCount[], count, loadoutI
 		
 	if (count == 0)
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "No items in this category");
+		CPrintToChat(client, "%s%t", STORE_PREFIX, "No items in this category");
 		OpenInventory(client);
 		
 		return;
@@ -358,7 +359,7 @@ public InventoryCategoryMenuSelectHandle(Handle:menu, MenuAction:action, client,
 			
 			if (itemTypeIndex == -1)
 			{
-				PrintToChat(client, "%s%t", STORE_PREFIX, "Item type not registered", type);
+				CPrintToChat(client, "%s%t", STORE_PREFIX, "Item type not registered", type);
 				Store_LogWarning("The item type '%s' wasn't registered by any plugin.", type);
 				
 				OpenInventoryCategory(client, Store_GetItemCategory(id));

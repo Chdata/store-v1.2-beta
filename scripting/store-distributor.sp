@@ -2,6 +2,7 @@
 
 #include <sourcemod>
 #include <store>
+#include <morecolors>
 
 #define MAX_FILTERS 128
 
@@ -140,7 +141,14 @@ public Action:ForgivePoints(Handle:timer)
 
 			if (g_enableMessagePerTick)
 			{
-				PrintToChat(client, "%s%t", STORE_PREFIX, "Received Credits", credits[count], g_currencyName);
+				if (credits[count] != 1)
+				{
+					CPrintToChat(client, "%s%t", STORE_PREFIX, "Received Credits", credits[count], g_currencyName);
+				}
+				else
+				{
+					CPrintToChat(client, "%s%t", STORE_PREFIX, "Received Credits", credits[count], "bit");
+				}
 			}
 
 			count++;

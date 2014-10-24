@@ -59,7 +59,7 @@ enum Store_AcquireMethod
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId			The account ID of the player, use Store_GetClientAccountID to convert a client index to account ID.
+ * @param accountId			The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param name 				The name of the player.
  * @param credits 			The amount of credits to give to the player if it's his first register. 
  *
@@ -535,7 +535,7 @@ native Store_GetLoadoutTeam(id);
  *	SetTrieValue(filter, "is_refundable", 1); 
  *
  *  Store_GetUserItems(filter,
- *                      Store_GetClientAccountID(client), 
+ *                      GetSteamAccountID(client), 
  *                      Store_GetClientLoadout(client), 
  *                      GetUserItemsCallback);
  *
@@ -557,7 +557,7 @@ native Store_GetLoadoutTeam(id);
  * As with all other store-backend methods, this method is completely asynchronous.
  *
  * @param filter			A trie which will be used to filter the loadouts returned.
- * @param accountId		    The account ID of the player, use Store_GetClientAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param loadoutId         The loadout which will be used to determine whether an item is equipped or not.
  * @param callback		    A callback which will be called when the items are loaded.
  * @param data              Extra data value to pass to the callback.
@@ -571,7 +571,7 @@ native Store_GetUserItems(Handle:filter, accountId, loadoutId, Store_GetUserItem
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId		    The account ID of the player, use Store_GetClientAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param itemName          The name of the item.
  * @param callback		    A callback which will be called when the items are loaded.
  * @param data              Extra data value to pass to the callback.
@@ -585,7 +585,7 @@ native Store_GetUserItemCount(accountId, const String:itemName[], Store_GetUserI
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId		    The account ID of the player, use Store_GetClientAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param callback		    A callback which will be called when the credits amount is loaded.
  * @param data              Extra data value to pass to the callback.
  *
@@ -601,7 +601,7 @@ native Store_GetCredits(accountId, Store_GetCreditsCallback:callback, any:data =
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId		    The account ID of the player, use Store_GetClientAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param credits           The amount of credits to give to the player.
  * @param callback		    A callback which will be called when the operation is finished.
  * @param data              Extra data value to pass to the callback.
@@ -618,7 +618,7 @@ native Store_GiveCredits(accountId, credits, Store_GiveCreditsCallback:callback 
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountIds	    The account IDs of the players, use Store_GetClientAccountID to convert a client index to account ID.
+ * @param accountIds	    The account IDs of the players, use GetSteamAccountID to convert a client index to account ID.
  * @param accountIdsLength  Players count.
  * @param credits           The amount of credits to give to the players.
  *
@@ -634,7 +634,7 @@ native Store_GiveCreditsToUsers(accountIds[], accountIdsLength, credits);
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountIds	    The account IDs of the players, use Store_GetClientAccountID to convert a client index to account ID.
+ * @param accountIds	    The account IDs of the players, use GetSteamAccountID to convert a client index to account ID.
  * @param accountIdsLength  Players count.
  * @param credits           Amount of credits per player. 
  *
@@ -647,7 +647,7 @@ native Store_GiveDifferentCreditsToUsers(accountIds[], accountIdsLength, credits
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId		    The account ID of the player, use Store_GetClientAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param itemId 			The ID of the item to give to the player.
  * @param acquireMethod 		
  * @param callback		    A callback which will be called when the operation is finished.
@@ -667,7 +667,7 @@ native Store_GiveItem(accountId, itemId, Store_AcquireMethod:acquireMethod = Sto
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId		    The account ID of the player, use Store_GetClientAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param itemId            The ID of the item to buy.
  * @param callback		    A callback which will be called when the operation is finished.
  * @param data              Extra data value to pass to the callback.
@@ -681,7 +681,7 @@ native Store_BuyItem(accountId, itemId, Store_BuyItemCallback:callback, any:data
  * 
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId		    The account ID of the player, use Store_GetClientAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param itemId            The ID of the item to use.
  * @param callback		    A callback which will be called when the operation is finished.
  * @param data              Extra data value to pass to the callback.
@@ -695,7 +695,7 @@ native Store_RemoveUserItem(accountId, itemId, Store_UseItemCallback:callback, a
  * 
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId		    The account ID of the player, use Store_GetClientAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param itemId            The ID of the item to change equipped state to.
  * @param loadoutId         The loadout to equip the item in.
  * @param isEquipped		Whether or not the item is equipped in the specified loadout.
@@ -725,7 +725,7 @@ native Store_SetItemEquippedState(accountId, itemId, loadoutId, bool:isEquipped,
  *
  * For example:
  * 
- *  Store_GetUserItems(Store_GetClientAccountID(client), 
+ *  Store_GetUserItems(GetSteamAccountID(client), 
  *                      categoryId, 
  *                      Store_GetClientLoadout(client), 
  *                      GetUserItemsCallback);
@@ -747,7 +747,7 @@ native Store_SetItemEquippedState(accountId, itemId, loadoutId, bool:isEquipped,
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId		    The account ID of the player, use Store_GetClientAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param type              The category of the items you want to retrieve.
  * @param loadoutId         The loadout which will be used to determine whether an item is equipped or not.
  * @param callback		    A callback which will be called when the items are loaded.

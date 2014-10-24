@@ -5,8 +5,9 @@
 #include <store/store-logging>
 #include <store/store-backend>
 
-#include <colors>
-#include <morecolors_store>
+//#include <colors>
+//#include <morecolors_store>
+#include <morecolors>
 
 #define MAX_MENU_ITEMS 32
 #define MAX_CHAT_COMMANDS 100
@@ -204,14 +205,21 @@ public ChatCommand_Credits(client)
 
 public OnCommandGetCredits(credits, any:client)
 {
-	PrintToChat(client, "%s%t", STORE_PREFIX, "Store Menu Title", credits, g_currencyName);
+	if (credits != 1)
+	{
+		CPrintToChat(client, "%s%t", STORE_PREFIX, "Store Menu Title", credits, g_currencyName);
+	}
+	else
+	{
+		CPrintToChat(client, "%s%t", STORE_PREFIX, "Store Menu Title", credits, "bit");
+	}
 }
 
 public Action:Command_GiveCredits(client, args)
 {
 	if (args < 2)
 	{
-		ReplyToCommand(client, "%sUsage: store_givecredits <name> <credits>", STORE_PREFIX);
+		CPrintToChat(client, "%sUsage: store_givecredits <name> <credits>", STORE_PREFIX);
 		return Plugin_Handled;
 	}
     
@@ -253,7 +261,14 @@ public Action:Command_GiveCredits(client, args)
 			accountIds[count] = GetSteamAccountID(target_list[i]);
 			count++;
 
-			PrintToChat(target_list[i], "%s%t", STORE_PREFIX, "Received Credits", imoney, g_currencyName);
+			if (imoney != 1)
+			{
+				CPrintToChat(target_list[i], "%s%t", STORE_PREFIX, "Received Credits", imoney, g_currencyName);
+			}
+			else
+			{
+				CPrintToChat(target_list[i], "%s%t", STORE_PREFIX, "Received Credits", imoney, "bit");
+			}
 		}
 	}
 
@@ -284,7 +299,7 @@ LoadConfig()
 	KvGetString(kv, "mainmenu_commands", buffer, sizeof(buffer), "!store /store");
 	Store_RegisterChatCommands(buffer, ChatCommand_OpenMainMenu);
 
-	KvGetString(kv, "credits_commands", buffer, sizeof(buffer), "!credits /credits");
+	KvGetString(kv, "credits_commands", buffer, sizeof(buffer), "!bits /bits !bit /bit /credits !credits");
 	Store_RegisterChatCommands(buffer, ChatCommand_Credits);
 
 	g_firstConnectionCredits = KvGetNum(kv, "first_connection_credits");

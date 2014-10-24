@@ -6,6 +6,7 @@
 #include <store/store-logging>
 #include <store/store-inventory>
 #include <store/store-loadout>
+#include <morecolors>
 
 new String:g_currencyName[64];
 
@@ -195,7 +196,7 @@ public GetUserItemsCallback(ids[], bool:equipped[], itemCount[], count, loadoutI
 		
 	if (count == 0)
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "No items in this category");
+		CPrintToChat(client, "%s%t", STORE_PREFIX, "No items in this category");
 		OpenRefundMenu(client);
 		
 		return;
@@ -352,8 +353,15 @@ public OnGiveCreditsComplete(accountId, any:pack)
 
 	decl String:displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 	Store_GetItemDisplayName(itemId, displayName, sizeof(displayName));
-		
-	PrintToChat(client, "%s%t", STORE_PREFIX, "Refund Message", displayName, credits, g_currencyName);
 
+	if (credits != 1)
+	{
+		CPrintToChat(client, "%s%t", STORE_PREFIX, "Refund Message", displayName, credits, g_currencyName);
+	}
+	else
+	{
+		CPrintToChat(client, "%s%t", STORE_PREFIX, "Refund Message", displayName, credits, "bit");
+	}
+	
 	OpenRefundMenu(client);
 }

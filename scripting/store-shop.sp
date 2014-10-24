@@ -5,7 +5,7 @@
 #include <store/store-backend>
 #include <store/store-logging>
 #include <store/store-inventory>
-#include <colors>
+#include <morecolors>
 
 new String:g_currencyName[64];
 
@@ -182,19 +182,20 @@ public GetItemsForCategoryCallback(ids[], count, any:pack)
 		decl String:displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 		Store_GetCategoryDisplayName(categoryId, displayName, sizeof(displayName));
 
-		if (!g_hideCategoryDescriptions)
-		{
-			decl String:description[STORE_MAX_DESCRIPTION_LENGTH];
-			Store_GetCategoryDescription(categoryId, description, sizeof(description));
+		decl String:description[STORE_MAX_DESCRIPTION_LENGTH];
 
-			decl String:itemText[sizeof(displayName) + 1 + sizeof(description)];
+		decl String:itemText[sizeof(displayName) + 1 + sizeof(description)];
+		if(g_hideCategoryDescriptions==false){
+			Store_GetCategoryDescription(categoryId, description, sizeof(description));
 			Format(itemText, sizeof(itemText), "%s\n%s", displayName, description);
+		} else {
+			Format(itemText, sizeof(itemText), "%s", displayName);
 		}
 		
 		decl String:itemValue[8];
 		IntToString(categoryId, itemValue, sizeof(itemValue));
 		
-		AddMenuItem(categories_menu[client], itemValue, displayName);
+		AddMenuItem(categories_menu[client], itemValue, itemText);
 	}
 
 	if (left == 0)
@@ -264,7 +265,7 @@ public GetItemsCallback(ids[], count, any:pack)
 	
 	if (count == 0)
 	{
-		PrintToChat(client, "%s%t", STORE_PREFIX, "No items in this category");
+		CPrintToChat(client, "%s%t", STORE_PREFIX, "No items in this category");
 		OpenShop(client);
 		
 		return;
@@ -284,7 +285,7 @@ public GetItemsCallback(ids[], count, any:pack)
 
 		Store_GetItemDisplayName(ids[item], displayName, sizeof(displayName));
 
-		if(g_hideCategoryDescriptions==false){
+		if(!g_hideCategoryDescriptions){
 			Store_GetItemDescription(ids[item], description, sizeof(description));
 			Format(text, sizeof(text), "%s [%d %s]\n%s", displayName, Store_GetItemPrice(ids[item]), g_currencyName, description);
 		} else {
@@ -385,7 +386,7 @@ public DoBuyItem_ItemCountCallBack(count, any:pack)
 	{
 		decl String:displayName[STORE_MAX_DISPLAY_NAME_LENGTH];
 		Store_GetItemDisplayName(itemId, displayName, sizeof(displayName));
-		PrintToChat(client, "%s%t", STORE_PREFIX, "Already purchased item", displayName);
+		CPrintToChat(client, "%s%t", STORE_PREFIX, "Already purchased item", displayName);
 	}
 }
 

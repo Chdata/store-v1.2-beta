@@ -4,7 +4,7 @@
 #define _store_core_included
 
 #define STORE_VERSION "1.2-beta"
-#define STORE_PREFIX "\x04[Store] \x01"
+#define STORE_PREFIX "{lightsteelblue}[DATA] {linen}"
 
 funcenum Store_MenuItemClickCallback
 {
