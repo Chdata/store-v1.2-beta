@@ -306,9 +306,9 @@ OpenGiftingMenu(client)
     Format(item, sizeof(item), "%T", "Item", client);
 
     AddMenuItem(menu, "credits", "Bits");
-    if (IsPlayerGiga(client)) AddMenuItem(menu, "item", item);
+    if (IsPlayerOwner(client)) AddMenuItem(menu, "item", item);
 
-    DisplayMenu(menu, client, 0);
+    DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
 public GiftTypeMenuSelectHandle(Handle:menu, MenuAction:action, client, slot)
@@ -573,7 +573,7 @@ public GetCreditsCallback(credits, any:pack)
 
     if (giftCredits > credits)
     {
-        PrintToChat(client, "%s%t", STORE_PREFIX, "Not enough credits", g_currencyName);
+        CPrintToChat(client, "%s%t", STORE_PREFIX, "Not enough credits", g_currencyName);
     }
     else
     {
@@ -695,7 +695,7 @@ public GetUserItemsCallback(ids[], bool:equipped[], itemCount[], count, loadoutI
         
     if (count == 0)
     {
-        PrintToChat(client, "%s%t", STORE_PREFIX, "No items");  
+        CPrintToChat(client, "%s%t", STORE_PREFIX, "No items");  
         return;
     }
     
