@@ -70,6 +70,7 @@ public APLRes:AskPluginLoad2(Handle:myself, bool:late, String:error[], err_max)
 {
 	CreateNative("Store_Register", Native_Register);
 	CreateNative("Store_RegisterClient", Native_RegisterClient);
+	//CreateNative("Store_GetClientAccountID", Native_GetClientAccountID);
 
 	CreateNative("Store_GetCategories", Native_GetCategories);
 	CreateNative("Store_GetCategoryDisplayName", Native_GetCategoryDisplayName);
@@ -252,11 +253,11 @@ public T_RegisterCallback(Handle:owner, Handle:hndl, const String:error[], any:d
  *
  * @noreturn
  */
-GetCategories(client, Store_GetItemsCallback:callback = Store_GetItemsCallback:INVALID_HANDLE, Handle:plugin = INVALID_HANDLE, bool:loadFromCache = true, any:data = 0)
+GetCategories(client, Store_GetItemsCallback:callback = INVALID_FUNCTION, Handle:plugin = INVALID_HANDLE, bool:loadFromCache = true, any:data = 0)
 {
 	if (loadFromCache && g_categoryCount != -1)
 	{
-		if (callback == Store_GetItemsCallback:INVALID_HANDLE)
+		if (callback == INVALID_FUNCTION || callback == Function:0)
 			return;
 
 		new categories[g_categoryCount];
@@ -277,7 +278,7 @@ GetCategories(client, Store_GetItemsCallback:callback = Store_GetItemsCallback:I
 	else
 	{
 		new Handle:pack = CreateDataPack();
-		WritePackCell(pack, _:callback);
+		WritePackFunction(pack, callback);
 		WritePackCell(pack, _:plugin);
 		WritePackCell(pack, _:data);
 	
@@ -299,7 +300,7 @@ public T_GetCategoriesCallback(Handle:owner, Handle:hndl, const String:error[], 
 	
 	ResetPack(pack);
 	
-	new Store_GetItemsCallback:callback = Store_GetItemsCallback:ReadPackCell(pack);
+	new Store_GetItemsCallback:callback = Store_GetItemsCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
@@ -371,11 +372,11 @@ GetCategoryIndex(id)
  *
  * @noreturn
  */
-GetItems(Handle:filter = INVALID_HANDLE, Store_GetItemsCallback:callback = Store_GetItemsCallback:INVALID_HANDLE, Handle:plugin = INVALID_HANDLE, bool:loadFromCache = true, any:data = 0)
+GetItems(client, Handle:filter = INVALID_HANDLE, Store_GetItemsCallback:callback = INVALID_FUNCTION, Handle:plugin = INVALID_HANDLE, bool:loadFromCache = true, any:data = 0)
 {
 	if (loadFromCache && g_itemCount != -1)
 	{
-		if (callback == Store_GetItemsCallback:INVALID_HANDLE)
+		if (callback == INVALID_FUNCTION || callback == Function:0)
 			return;
 
 		new categoryId;
@@ -426,12 +427,14 @@ GetItems(Handle:filter = INVALID_HANDLE, Store_GetItemsCallback:callback = Store
 	{
 		new Handle:pack = CreateDataPack();
 		WritePackCell(pack, _:filter);
-		WritePackCell(pack, _:callback);
+		WritePackFunction(pack, callback);
 		WritePackCell(pack, _:plugin);
 		WritePackCell(pack, _:data);
 	
 		SQL_TQuery(g_hSQL, T_GetItemsCallback, "SELECT id, name, display_name, description, type, loadout_slot, price, category_id, attrs, LENGTH(attrs) AS attrs_len, is_buyable, is_tradeable, is_refundable, flags FROM store_items ORDER BY price, display_name", pack);
 	}
+
+	if (client != -1) CReplyToCommand(client, "%s%t", (client != 0) ? STORE_PREFIX : STORE_PREFIX_NOCOLOR, "Reloaded items");
 }
 
 public T_GetItemsCallback(Handle:owner, Handle:hndl, const String:error[], any:pack)
@@ -450,7 +453,7 @@ public T_GetItemsCallback(Handle:owner, Handle:hndl, const String:error[], any:p
 	ResetPack(pack);
 	
 	new Handle:filter = Handle:ReadPackCell(pack);
-	new Store_GetItemsCallback:callback = Store_GetItemsCallback:ReadPackCell(pack);
+	new Store_GetItemsCallback:callback = Store_GetItemsCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
@@ -518,7 +521,7 @@ GetItemAttributes(const String:itemName[], Store_ItemGetAttributesCallback:callb
 {
 	new Handle:pack = CreateDataPack();
 	WritePackString(pack, itemName);
-	WritePackCell(pack, _:callback);
+	WritePackFunction(pack, callback);
 	WritePackCell(pack, _:plugin);
 	WritePackCell(pack, _:data);
 
@@ -548,7 +551,7 @@ public T_GetItemAttributesCallback(Handle:owner, Handle:hndl, const String:error
 	decl String:itemName[STORE_MAX_NAME_LENGTH];
 	ReadPackString(pack, itemName, sizeof(itemName));
 
-	new Store_ItemGetAttributesCallback:callback = Store_ItemGetAttributesCallback:ReadPackCell(pack);
+	new Store_ItemGetAttributesCallback:callback = Store_ItemGetAttributesCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
@@ -563,7 +566,7 @@ public T_GetItemAttributesCallback(Handle:owner, Handle:hndl, const String:error
 			decl String:attrs[attrsLength+1];
 			SQL_FetchString(hndl, 0, attrs, attrsLength+1);
 
-			if (callback != Store_ItemGetAttributesCallback:0)
+			if (callback != INVALID_FUNCTION && callback != Function:0)
 			{
 				Call_StartFunction(plugin, callback);
 				Call_PushString(itemName);
@@ -586,7 +589,7 @@ public T_GetItemAttributesCallback(Handle:owner, Handle:hndl, const String:error
 WriteItemAttributes(const String:itemName[], const String:attrs[], Store_BuyItemCallback:callback, Handle:plugin = INVALID_HANDLE, any:data = 0)
 {
 	new Handle:pack = CreateDataPack();
-	WritePackCell(pack, _:callback);
+	WritePackFunction(pack, callback);
 	WritePackCell(pack, _:plugin);
 	WritePackCell(pack, _:data);
 
@@ -616,13 +619,13 @@ public T_WriteItemAttributesCallback(Handle:owner, Handle:hndl, const String:err
 	
 	ResetPack(pack);
 
-	new Store_BuyItemCallback:callback = Store_BuyItemCallback:ReadPackCell(pack);
+	new Store_BuyItemCallback:callback = Store_BuyItemCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
 	CloseHandle(pack);
 
-	if (callback != Store_BuyItemCallback:0)
+	if (callback != INVALID_FUNCTION && callback != Function:0)
 	{
 		Call_StartFunction(plugin, callback);
 		Call_PushCell(true);
@@ -667,11 +670,11 @@ public T_WriteItemAttributesCallback(Handle:owner, Handle:hndl, const String:err
  *
  * @noreturn
  */
-GetLoadouts(Handle:filter, Store_GetItemsCallback:callback = Store_GetItemsCallback:INVALID_HANDLE, Handle:plugin = INVALID_HANDLE, bool:loadFromCache = true, any:data = 0)
+GetLoadouts(Handle:filter, Store_GetItemsCallback:callback = INVALID_FUNCTION, Handle:plugin = INVALID_HANDLE, bool:loadFromCache = true, any:data = 0)
 {
 	if (loadFromCache && g_loadoutCount != -1)
 	{
-		if (callback == Store_GetItemsCallback:INVALID_HANDLE)
+		if (callback == INVALID_FUNCTION || callback == Function:0)
 			return;
 
 		new loadouts[g_loadoutCount];
@@ -711,7 +714,7 @@ GetLoadouts(Handle:filter, Store_GetItemsCallback:callback = Store_GetItemsCallb
 	{
 		new Handle:pack = CreateDataPack();
 		WritePackCell(pack, _:filter);
-		WritePackCell(pack, _:callback);
+		WritePackFunction(pack, callback);
 		WritePackCell(pack, _:plugin);
 		WritePackCell(pack, _:data);
 	
@@ -732,7 +735,7 @@ public T_GetLoadoutsCallback(Handle:owner, Handle:hndl, const String:error[], an
 	ResetPack(pack);
 	
 	new Handle:filter = Handle:ReadPackCell(pack);
-	new Store_GetItemsCallback:callback = Store_GetItemsCallback:ReadPackCell(pack);
+	new Store_GetItemsCallback:callback = Store_GetItemsCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
@@ -816,7 +819,7 @@ GetUserItems(Handle:filter, accountId, loadoutId, Store_GetUserItemsCallback:cal
 	WritePackCell(pack, _:filter); // 0 
 	WritePackCell(pack, accountId); // 8
 	WritePackCell(pack, loadoutId);	// 16
-	WritePackCell(pack, _:callback); // 24
+	WritePackFunction(pack, callback); // 24(?)
 	WritePackCell(pack, _:plugin); // 32
 	WritePackCell(pack, _:data); // 40
 	
@@ -872,7 +875,7 @@ public GetUserItemsLoadCallback(ids[], count, any:pack)
 	new Handle:filter = Handle:ReadPackCell(pack);
 	new accountId = ReadPackCell(pack);  
 	new loadoutId = ReadPackCell(pack); 
-	new Store_GetUserItemsCallback:callback = Store_GetUserItemsCallback:ReadPackCell(pack); 
+	new Store_GetUserItemsCallback:callback = Store_GetUserItemsCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack); 
 	new arg = ReadPackCell(pack); 
 	
@@ -891,10 +894,13 @@ public T_GetUserItemsCallback(Handle:owner, Handle:hndl, const String:error[], a
 		return;
 	}
 	
-	SetPackPosition(pack, 16);	
+	//SetPackPosition(pack, 16);
+	ResetPack(pack);
+	ReadPackCell(pack);
+	ReadPackCell(pack);
 
 	new loadoutId = ReadPackCell(pack);	
-	new Store_GetUserItemsCallback:callback = Store_GetUserItemsCallback:ReadPackCell(pack);
+	new Store_GetUserItemsCallback:callback = Store_GetUserItemsCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
@@ -942,7 +948,7 @@ public T_GetUserItemsCallback(Handle:owner, Handle:hndl, const String:error[], a
 GetUserItemCount(accountId, const String:itemName[], Store_GetUserItemCountCallback:callback, Handle:plugin = INVALID_HANDLE, any:data = 0)
 {
 	new Handle:pack = CreateDataPack();
-	WritePackCell(pack, _:callback);
+	WritePackFunction(pack, callback);
 	WritePackCell(pack, _:plugin);
 	WritePackCell(pack, _:data);
 
@@ -969,7 +975,7 @@ public T_GetUserItemCountCallback(Handle:owner, Handle:hndl, const String:error[
 	
 	ResetPack(pack);
 	
-	new Store_GetUserItemCountCallback:callback = Store_GetUserItemCountCallback:ReadPackCell(pack);
+	new Store_GetUserItemCountCallback:callback = Store_GetUserItemCountCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 
@@ -999,7 +1005,7 @@ public T_GetUserItemCountCallback(Handle:owner, Handle:hndl, const String:error[
 GetCredits(accountId, Store_GetCreditsCallback:callback, Handle:plugin = INVALID_HANDLE, any:data = 0)
 {
 	new Handle:pack = CreateDataPack();
-	WritePackCell(pack, _:callback);
+	WritePackFunction(pack, callback);
 	WritePackCell(pack, _:plugin);
 	WritePackCell(pack, _:data);
 		
@@ -1021,7 +1027,7 @@ public T_GetCreditsCallback(Handle:owner, Handle:hndl, const String:error[], any
 	
 	ResetPack(pack);
 	
-	new Store_GetCreditsCallback:callback = Store_GetCreditsCallback:ReadPackCell(pack);
+	new Store_GetCreditsCallback:callback = Store_GetCreditsCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
@@ -1058,7 +1064,7 @@ BuyItem(accountId, itemId, Store_BuyItemCallback:callback, Handle:plugin = INVAL
 	new Handle:pack = CreateDataPack();
 	WritePackCell(pack, itemId); // 0
 	WritePackCell(pack, accountId); // 8
-	WritePackCell(pack, _:callback); // 16
+	WritePackFunction(pack, callback); // 16(?)
 	WritePackCell(pack, _:plugin); // 24
 	WritePackCell(pack, _:data); // 32
 	
@@ -1071,7 +1077,7 @@ public T_BuyItemGetCreditsCallback(credits, any:pack)
 	
 	new itemId = ReadPackCell(pack); 
 	new accountId = ReadPackCell(pack); 
-	new Store_BuyItemCallback:callback = Store_BuyItemCallback:ReadPackCell(pack); 
+	new Store_BuyItemCallback:callback = Store_BuyItemCallback:ReadPackFunction(pack); 
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
@@ -1098,9 +1104,12 @@ public BuyItemGiveCreditsCallback(accountId, any:pack)
 
 public BuyItemGiveItemCallback(accountId, any:pack)
 {
-	SetPackPosition(pack, 16);
+	//SetPackPosition(pack, 16);
+	ResetPack(pack);
+	ReadPackCell(pack);
+	ReadPackCell(pack);
 	
-	new Store_BuyItemCallback:callback = Store_BuyItemCallback:ReadPackCell(pack);
+	new Store_BuyItemCallback:callback = Store_BuyItemCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
@@ -1130,7 +1139,7 @@ RemoveUserItem(accountId, itemId, Store_UseItemCallback:callback, Handle:plugin 
 	new Handle:pack = CreateDataPack();
 	WritePackCell(pack, accountId); // 0
 	WritePackCell(pack, itemId); // 8
-	WritePackCell(pack, _:callback); // 16
+	WritePackFunction(pack, callback); // 16(?)
 	WritePackCell(pack, _:plugin);
 	WritePackCell(pack, _:data);
 	
@@ -1159,7 +1168,7 @@ public T_RemoveUserItemCallback(Handle:owner, Handle:hndl, const String:error[],
 		
 	new accountId = ReadPackCell(pack);
 	new itemId = ReadPackCell(pack);
-	new Store_UseItemCallback:callback = Store_UseItemCallback:ReadPackCell(pack);
+	new Store_UseItemCallback:callback = Store_UseItemCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
@@ -1218,7 +1227,7 @@ EquipItem(accountId, itemId, loadoutId, Store_EquipItemCallback:callback, Handle
 	WritePackCell(pack, accountId);
 	WritePackCell(pack, itemId);
 	WritePackCell(pack, loadoutId);	
-	WritePackCell(pack, _:callback);
+	WritePackFunction(pack, callback);
 	WritePackCell(pack, _:plugin);
 	WritePackCell(pack, _:data);
 	
@@ -1248,7 +1257,7 @@ public T_EquipItemCallback(Handle:owner, Handle:hndl, const String:error[], any:
 	new accountId = ReadPackCell(pack);
 	new itemId = ReadPackCell(pack);
 	new loadoutId = ReadPackCell(pack);
-	new Store_GiveCreditsCallback:callback = Store_GiveCreditsCallback:ReadPackCell(pack);
+	new Store_GiveCreditsCallback:callback = Store_GiveCreditsCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
@@ -1284,7 +1293,7 @@ UnequipItem(accountId, itemId, loadoutId, Store_EquipItemCallback:callback, Hand
 	WritePackCell(pack, accountId);
 	WritePackCell(pack, itemId);
 	WritePackCell(pack, loadoutId);
-	WritePackCell(pack, _:callback);
+	WritePackFunction(pack, callback);
 	WritePackCell(pack, _:plugin);
 	WritePackCell(pack, _:data);
 	
@@ -1314,7 +1323,7 @@ public T_UnequipItemCallback(Handle:owner, Handle:hndl, const String:error[], an
 	new accountId = ReadPackCell(pack);
 	new itemId = ReadPackCell(pack);
 	new loadoutId = ReadPackCell(pack);
-	new Store_GiveCreditsCallback:callback = Store_GiveCreditsCallback:ReadPackCell(pack);
+	new Store_GiveCreditsCallback:callback = Store_GiveCreditsCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
@@ -1383,7 +1392,7 @@ public T_GetEquippedItemsByTypeCallback(Handle:owner, Handle:hndl, const String:
 	
 	ResetPack(pack);
 	
-	new Store_GetItemsCallback:callback = Store_GetItemsCallback:ReadPackCell(pack);
+	new Store_GetItemsCallback:callback = Store_GetItemsCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
@@ -1426,7 +1435,7 @@ GiveCredits(accountId, credits, Store_GiveCreditsCallback:callback, Handle:plugi
 {
 	new Handle:pack = CreateDataPack();
 	WritePackCell(pack, accountId);
-	WritePackCell(pack, _:callback);
+	WritePackFunction(pack, callback);
 	WritePackCell(pack, _:plugin);
 	WritePackCell(pack, _:data);
 	
@@ -1449,13 +1458,13 @@ public T_GiveCreditsCallback(Handle:owner, Handle:hndl, const String:error[], an
 	ResetPack(pack);
 	
 	new accountId = ReadPackCell(pack);
-	new Store_GiveCreditsCallback:callback = Store_GiveCreditsCallback:ReadPackCell(pack);
+	new Store_GiveCreditsCallback:callback = Store_GiveCreditsCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
 	CloseHandle(pack);
 	
-	if (callback != Store_GiveCreditsCallback:INVALID_HANDLE) 
+	if (callback != INVALID_FUNCTION && callback != Function:0) 
 	{
 		Call_StartFunction(plugin, callback);
 		Call_PushCell(accountId);
@@ -1482,7 +1491,7 @@ GiveItem(accountId, itemId, Store_AcquireMethod:acquireMethod = Store_Unknown, S
 {
 	new Handle:pack = CreateDataPack();
 	WritePackCell(pack, accountId);
-	WritePackCell(pack, _:callback);
+	WritePackFunction(pack, callback);
 	WritePackCell(pack, _:plugin);
 	WritePackCell(pack, _:data);
 
@@ -1520,13 +1529,13 @@ public T_GiveItemCallback(Handle:owner, Handle:hndl, const String:error[], any:p
 	ResetPack(pack);
 	
 	new accountId = ReadPackCell(pack);
-	new Store_GiveCreditsCallback:callback = Store_GiveCreditsCallback:ReadPackCell(pack);
+	new Store_GiveCreditsCallback:callback = Store_GiveCreditsCallback:ReadPackFunction(pack);
 	new Handle:plugin = Handle:ReadPackCell(pack);
 	new arg = ReadPackCell(pack);
 	
 	CloseHandle(pack);
 	
-	if (callback != Store_GiveCreditsCallback:INVALID_HANDLE) 
+	if (callback != INVALID_FUNCTION && callback != Function:0) 
 	{
 		Call_StartFunction(plugin, callback);
 		Call_PushCell(accountId);
@@ -1729,6 +1738,19 @@ public Native_RegisterClient(Handle:plugin, params)
 	RegisterClient(GetNativeCell(1), GetNativeCell(2));
 }
 
+// public Native_GetClientAccountID(Handle:plugin, params)
+// {
+// 	new client = GetNativeCell(1);
+// 	new AccountID = GetSteamAccountID(client);
+// 	
+// 	if (AccountID == 0)
+// 	{
+// 		ThrowNativeError(SP_ERROR_INDEX, "Error retrieving client Steam Account ID %L.", client);
+// 	}
+// 	
+// 	return AccountID;
+// }
+
 public Native_GetCategories(Handle:plugin, params)
 {
 	new any:data = 0;
@@ -1736,7 +1758,7 @@ public Native_GetCategories(Handle:plugin, params)
 	if (params == 3)
 		data = GetNativeCell(3);
 		
-	GetCategories(-1, Store_GetItemsCallback:GetNativeCell(1), plugin, bool:GetNativeCell(2), data);
+	GetCategories(-1, Store_GetItemsCallback:GetNativeFunction(1), plugin, bool:GetNativeCell(2), data);
 }
 
 public Native_GetCategoryDisplayName(Handle:plugin, params)
@@ -1761,7 +1783,7 @@ public Native_GetItems(Handle:plugin, params)
 	if (params == 4)
 		data = GetNativeCell(4);
 		
-	GetItems(-1, Handle:GetNativeCell(1), Store_GetItemsCallback:GetNativeCell(2), plugin, bool:GetNativeCell(3), data);
+	GetItems(-1, Handle:GetNativeCell(1), Store_GetItemsCallback:GetNativeFunction(2), plugin, bool:GetNativeCell(3), data);
 }
 
 public Native_GetItemName(Handle:plugin, params)
@@ -1824,7 +1846,7 @@ public Native_GetItemAttributes(Handle:plugin, params)
 	decl String:itemName[STORE_MAX_NAME_LENGTH];
 	GetNativeString(1, itemName, sizeof(itemName));
 
-	GetItemAttributes(itemName, Store_ItemGetAttributesCallback:GetNativeCell(2), plugin, data);
+	GetItemAttributes(itemName, Store_ItemGetAttributesCallback:GetNativeFunction(2), plugin, data);
 }
 
 public Native_WriteItemAttributes(Handle:plugin, params)
@@ -1843,7 +1865,7 @@ public Native_WriteItemAttributes(Handle:plugin, params)
 	decl String:attrs[attrsLength];
 	GetNativeString(2, attrs, attrsLength);
 
-	WriteItemAttributes(itemName, attrs, Store_BuyItemCallback:GetNativeCell(3), plugin, data);
+	WriteItemAttributes(itemName, attrs, Store_BuyItemCallback:GetNativeFunction(3), plugin, data);
 }
 
 public Native_GetLoadouts(Handle:plugin, params)
@@ -1852,7 +1874,7 @@ public Native_GetLoadouts(Handle:plugin, params)
 	if (params == 4)
 		data = GetNativeCell(4);
 		
-	GetLoadouts(Handle:GetNativeCell(1), Store_GetItemsCallback:GetNativeCell(2), plugin, bool:GetNativeCell(3), data);
+	GetLoadouts(Handle:GetNativeCell(1), Store_GetItemsCallback:GetNativeFunction(2), plugin, bool:GetNativeCell(3), data);
 }
 
 public Native_GetLoadoutDisplayName(Handle:plugin, params)
@@ -1881,7 +1903,7 @@ public Native_GetUserItems(Handle:plugin, params)
 	if (params == 5)
 		data = GetNativeCell(5);
 		
-	GetUserItems(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), Store_GetUserItemsCallback:GetNativeCell(4), plugin, data);    
+	GetUserItems(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), Store_GetUserItemsCallback:GetNativeFunction(4), plugin, data);    
 }
 
 public Native_GetUserItemCount(Handle:plugin, params)
@@ -1902,7 +1924,7 @@ public Native_GetCredits(Handle:plugin, params)
 	if (params == 3)
 		data = GetNativeCell(3);
 		
-	GetCredits(GetNativeCell(1), Store_GetCreditsCallback:GetNativeCell(2), plugin, data);    
+	GetCredits(GetNativeCell(1), Store_GetCreditsCallback:GetNativeFunction(2), plugin, data);    
 }
 
 public Native_BuyItem(Handle:plugin, params)
@@ -1912,7 +1934,7 @@ public Native_BuyItem(Handle:plugin, params)
 	if (params == 4)
 		data = GetNativeCell(4);
 
-	BuyItem(GetNativeCell(1), GetNativeCell(2), Store_BuyItemCallback:GetNativeCell(3), plugin, data);
+	BuyItem(GetNativeCell(1), GetNativeCell(2), Store_BuyItemCallback:GetNativeFunction(3), plugin, data);
 }
 
 public Native_RemoveUserItem(Handle:plugin, params)
@@ -1922,7 +1944,7 @@ public Native_RemoveUserItem(Handle:plugin, params)
 	if (params == 4)
 		data = GetNativeCell(4);
 
-	RemoveUserItem(GetNativeCell(1), GetNativeCell(2), Store_UseItemCallback:GetNativeCell(3), plugin, data);
+	RemoveUserItem(GetNativeCell(1), GetNativeCell(2), Store_UseItemCallback:GetNativeFunction(3), plugin, data);
 }
 
 public Native_SetItemEquippedState(Handle:plugin, params)
@@ -1932,7 +1954,7 @@ public Native_SetItemEquippedState(Handle:plugin, params)
 	if (params == 6)
 		data = GetNativeCell(6);
 
-	SetItemEquippedState(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), Store_EquipItemCallback:GetNativeCell(5), plugin, data);
+	SetItemEquippedState(GetNativeCell(1), GetNativeCell(2), GetNativeCell(3), GetNativeCell(4), Store_EquipItemCallback:GetNativeFunction(5), plugin, data);
 }
 
 public Native_GetEquippedItemsByType(Handle:plugin, params)
@@ -1945,7 +1967,7 @@ public Native_GetEquippedItemsByType(Handle:plugin, params)
 	if (params == 5)
 		data = GetNativeCell(5);
 
-	GetEquippedItemsByType(GetNativeCell(1), type, GetNativeCell(3), Store_GetItemsCallback:GetNativeCell(4), plugin, data);
+	GetEquippedItemsByType(GetNativeCell(1), type, GetNativeCell(3), Store_GetItemsCallback:GetNativeFunction(4), plugin, data);
 }
 
 public Native_GiveCredits(Handle:plugin, params)
@@ -1955,7 +1977,7 @@ public Native_GiveCredits(Handle:plugin, params)
 	if (params == 4)
 		data = GetNativeCell(4);
 		
-	GiveCredits(GetNativeCell(1), GetNativeCell(2), Store_GiveCreditsCallback:GetNativeCell(3), plugin, data);
+	GiveCredits(GetNativeCell(1), GetNativeCell(2), Store_GiveCreditsCallback:GetNativeFunction(3), plugin, data);
 }
 
 public Native_GiveCreditsToUsers(Handle:plugin, params)
@@ -1974,7 +1996,7 @@ public Native_GiveItem(Handle:plugin, params)
 	if (params == 5)
 		data = GetNativeCell(5);
 
-	GiveItem(GetNativeCell(1), GetNativeCell(2), Store_AcquireMethod:GetNativeCell(3), Store_GiveCreditsCallback:GetNativeCell(4), plugin, data);
+	GiveItem(GetNativeCell(1), GetNativeCell(2), Store_AcquireMethod:GetNativeCell(3), Store_GiveCreditsCallback:GetNativeFunction(4), plugin, data);
 }
 
 public Native_GiveDifferentCreditsToUsers(Handle:plugin, params)

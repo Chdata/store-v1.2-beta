@@ -3,34 +3,34 @@
 #endif
 #define _store_backend_included
 
-#define STORE_MAX_NAME_LENGTH           32
-#define STORE_MAX_DISPLAY_NAME_LENGTH   64
-#define STORE_MAX_DESCRIPTION_LENGTH    128
-#define STORE_MAX_TYPE_LENGTH           32
-#define STORE_MAX_REQUIREPLUGIN_LENGTH  32
+#define STORE_MAX_NAME_LENGTH			32
+#define STORE_MAX_DISPLAY_NAME_LENGTH	64
+#define STORE_MAX_DESCRIPTION_LENGTH	128
+#define STORE_MAX_TYPE_LENGTH			32
+#define STORE_MAX_REQUIREPLUGIN_LENGTH	32
 
-#define STORE_MAX_LOADOUTSLOT_LENGTH    32
-#define STORE_MAX_LOADOUTGAME_LENGTH    32
-#define STORE_MAX_LOADOUTCLASS_LENGTH   32
+#define STORE_MAX_LOADOUTSLOT_LENGTH	32
+#define STORE_MAX_LOADOUTGAME_LENGTH	32
+#define STORE_MAX_LOADOUTCLASS_LENGTH	32
 
-#define STORE_MAX_ATTRIBUTES_LENGTH     10*1024
+#define STORE_MAX_ATTRIBUTES_LENGTH		10*1024
 
-typedef Store_GetItemsCallback = function void(int items[], int count, any data);
-typedef Store_GetUserItemsCallback = function void(int useritems[], bool equipped[], int useritemCount[], int count, int loadoutId, any data);
+functag Store_GetItemsCallback public(items[], count, any:data);
+functag Store_GetUserItemsCallback public(useritems[], bool:equipped[], useritemCount[], count, loadoutId, any:data);
 
-typeset Store_ItemGetAttributesCallback 
+funcenum Store_ItemGetAttributesCallback 
 {
-    function void(const char[] itemName, const char[] attrs);
-    function void(const char[] itemName, const char[] attrs, any data);
+	public(const String:itemName[], const String:attrs[]),
+	public(const String:itemName[], const String:attrs[], any:data)
 }
 
-typedef Store_GetCreditsCallback = function void(int credits, any data);
-typedef Store_GiveCreditsCallback = function void(int accountId, any data);
+functag Store_GetCreditsCallback public(credits, any:data);
+functag Store_GiveCreditsCallback public(accountId, any:data);
 
-typedef Store_BuyItemCallback = function void(bool success, any data);
-typedef Store_EquipItemCallback = function void(int accountId, int itemId, int loadoutId, any data);
-typedef Store_UseItemCallback = function void(int accountId, int itemId, any data);
-typedef Store_GetUserItemCountCallback = function void(int count, any data);
+functag Store_BuyItemCallback public(bool:success, any:data);
+functag Store_EquipItemCallback public(accountId, itemId, loadoutId, any:data);
+functag Store_UseItemCallback public(accountId, itemId, any:data);
+functag Store_GetUserItemCountCallback public(count, any:data);
 
 forward Store_OnDatabaseInitialized();
 
@@ -39,12 +39,12 @@ forward Store_OnReloadItemsPost();
 
 enum Store_AcquireMethod
 {
-    Store_Shop,
-    Store_Trade,
-    Store_Gift,
-    Store_Admin,
-    Store_Web,
-    Store_Unknown
+	Store_Shop,
+	Store_Trade,
+	Store_Gift,
+	Store_Admin,
+	Store_Web,
+	Store_Unknown
 }
 
 /**
@@ -59,9 +59,9 @@ enum Store_AcquireMethod
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId         The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
- * @param name              The name of the player.
- * @param credits           The amount of credits to give to the player if it's his first register. 
+ * @param accountId			The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
+ * @param name 				The name of the player.
+ * @param credits 			The amount of credits to give to the player if it's his first register. 
  *
  * @noreturn
  */
@@ -79,25 +79,12 @@ native Store_Register(accountId, const String:name[] = "", credits = 0);
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param client            Client index.
- * @param credits           The amount of credits to give to the player if it's his first register. 
+ * @param client			Client index.
+ * @param credits 			The amount of credits to give to the player if it's his first register. 
  *
  * @noreturn
  */
 native Store_RegisterClient(client, credits = 0);
-
-/**
- * This function was added back in 1.2.2 in order to add backwards compatibility for older modules.
- * 
- * This essentially just pulls the AccountID of the client using the 'GetSteamAccountID' function.
- * 
- * If you're building a module for the store, It's best that you just use that instead but you can use this if you so desire.
- *
- * @param client           Client index.
- *
- * @return Steam account ID on success, 0 on error.
- */
-//native Store_GetClientAccountID(client);
 
 /**
  * Retrieves all item categories from the database. 
@@ -135,14 +122,14 @@ native Store_RegisterClient(client, credits = 0);
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param callback          A callback which will be called when the categories are loaded.
+ * @param callback		    A callback which will be called when the categories are loaded.
  * @param loadFromCache     Whether to load categories from cache. If false, the method will 
  *                          query the database and rebuild its cache.
  * @param data              Extra data value to pass to the callback.
  *
  * @noreturn
  */
-native Store_GetCategories(Store_GetItemsCallback:callback = INVALID_FUNCTION, bool:loadFromCache = true, any:data = 0);
+native Store_GetCategories(Store_GetItemsCallback:callback = Store_GetItemsCallback:INVALID_HANDLE, bool:loadFromCache = true, any:data = 0);
 
 /**
  * Retrieves a category's display name by its ID.
@@ -164,7 +151,7 @@ native Store_GetCategoryDisplayName(id, String:displayName[], maxlength);
  * IMPORTANT: This method only works if the store-backend module has a cache
  * of all categories.
  * 
- * @param id                Category's ID.
+ * @param id 				Category's ID.
  * @param description       Buffer to store string in.
  * @param maxlength         Maximum length of string buffer.
  *
@@ -216,9 +203,9 @@ native Store_GetCategoryPluginRequired(id, String:pluginRequired[], maxlength);
  *
  * For example:
  * 
- *  new Handle:filter = CreateTrie();
- *  SetTrieString(filter, "type", "equipment");
- *  SetTrieValue(filter, "is_buyable", 1);
+ *	new Handle:filter = CreateTrie();
+ * 	SetTrieString(filter, "type", "equipment");
+ *	SetTrieValue(filter, "is_buyable", 1);
  * 
  *  Store_GetItems(filter, OnItemsLoaded);
  *
@@ -236,14 +223,14 @@ native Store_GetCategoryPluginRequired(id, String:pluginRequired[], maxlength);
  * As with all other store-backend methods, this method is completely asynchronous.
  *
  * @param filter            A trie which will be used to filter the loadouts returned.
- * @param callback          A callback which will be called when the items are loaded.
+ * @param callback		    A callback which will be called when the items are loaded.
  * @param loadFromCache     Whether to load items from cache. If false, the method will 
  *                          query the database and rebuild its cache.
  * @param data              Extra data value to pass to the callback.
  *
  * @noreturn
  */
-native Store_GetItems(Handle:filter = INVALID_HANDLE, Store_GetItemsCallback:callback = INVALID_FUNCTION, bool:loadFromCache = true, any:data = 0);
+native Store_GetItems(Handle:filter = INVALID_HANDLE, Store_GetItemsCallback:callback = Store_GetItemsCallback:INVALID_HANDLE, bool:loadFromCache = true, any:data = 0);
 
 /**
  * Retrieves an item's name by its ID.
@@ -257,7 +244,7 @@ native Store_GetItems(Handle:filter = INVALID_HANDLE, Store_GetItemsCallback:cal
  * of all items.
  * 
  * @param id                Category's ID.
- * @param name              Buffer to store string in.
+ * @param name 				Buffer to store string in.
  * @param maxlength         Maximum length of string buffer.
  *
  * @noreturn
@@ -388,20 +375,20 @@ native bool:Store_IsItemRefundable(id);
 /** 
  * Retrieves item attributes asynchronously.
  *
- * @param itemName          Item's name.
+ * @param itemName			Item's name.
  *
  * @noreturn
  */
-native Store_GetItemAttributes(const String:itemName[], Store_ItemGetAttributesCallback:callback = INVALID_FUNCTION, any:data = 0);
+native Store_GetItemAttributes(const String:itemName[], Store_ItemGetAttributesCallback:callback = Store_ItemGetAttributesCallback:0, any:data = 0);
 
 /** 
  * Modifies item attributes asynchronously.
  *
- * @param itemName          Item's name.
+ * @param itemName			Item's name.
  *
  * @noreturn
  */
-native Store_WriteItemAttributes(const String:itemName[], const String:attrs[], Store_BuyItemCallback:callback = INVALID_FUNCTION, any:data = 0);
+native Store_WriteItemAttributes(const String:itemName[], const String:attrs[], Store_BuyItemCallback:callback = Store_BuyItemCallback:0, any:data = 0);
 
 /**
  * Retrieves loadouts from the database. 
@@ -430,9 +417,9 @@ native Store_WriteItemAttributes(const String:itemName[], const String:attrs[], 
  *
  * For example:
  *
- *  new Handle:filter = CreateTrie();
- *  SetTrieString(filter, "game", "tf");
- *  SetTrieValue(filter, "team", GetClientTeam(client));
+ *	new Handle:filter = CreateTrie();
+ * 	SetTrieString(filter, "game", "tf");
+ *	SetTrieValue(filter, "team", GetClientTeam(client));
  *  
  *  Store_GetLoadouts(filter, OnLoadoutsLoaded);
  *
@@ -450,7 +437,7 @@ native Store_WriteItemAttributes(const String:itemName[], const String:attrs[], 
  * As with all other store-backend methods, this method is completely asynchronous.
  *
  * @param filter            A trie which will be used to filter the loadouts returned.
- * @param callback          A callback which will be called when the items are loaded.
+ * @param callback		   	A callback which will be called when the items are loaded.
  * @param loadFromCache     Whether to load items from cache. If false, the method will 
  *                          query the database and rebuild its cache.
  * @param data              Extra data value to pass to the callback.
@@ -543,9 +530,9 @@ native Store_GetLoadoutTeam(id);
  *
  * For example:
  *
- *  new Handle:filter = CreateTrie();
- *  SetTrieString(filter, "type", "equipment");
- *  SetTrieValue(filter, "is_refundable", 1); 
+ *	new Handle:filter = CreateTrie();
+ * 	SetTrieString(filter, "type", "equipment");
+ *	SetTrieValue(filter, "is_refundable", 1); 
  *
  *  Store_GetUserItems(filter,
  *                      GetSteamAccountID(client), 
@@ -569,10 +556,10 @@ native Store_GetLoadoutTeam(id);
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param filter            A trie which will be used to filter the loadouts returned.
- * @param accountId         The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
+ * @param filter			A trie which will be used to filter the loadouts returned.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param loadoutId         The loadout which will be used to determine whether an item is equipped or not.
- * @param callback          A callback which will be called when the items are loaded.
+ * @param callback		    A callback which will be called when the items are loaded.
  * @param data              Extra data value to pass to the callback.
  *
  * @noreturn
@@ -584,9 +571,9 @@ native Store_GetUserItems(Handle:filter, accountId, loadoutId, Store_GetUserItem
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId         The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param itemName          The name of the item.
- * @param callback          A callback which will be called when the items are loaded.
+ * @param callback		    A callback which will be called when the items are loaded.
  * @param data              Extra data value to pass to the callback.
  *
  * @noreturn
@@ -598,8 +585,8 @@ native Store_GetUserItemCount(accountId, const String:itemName[], Store_GetUserI
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId         The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
- * @param callback          A callback which will be called when the credits amount is loaded.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
+ * @param callback		    A callback which will be called when the credits amount is loaded.
  * @param data              Extra data value to pass to the callback.
  *
  * @noreturn
@@ -614,14 +601,14 @@ native Store_GetCredits(accountId, Store_GetCreditsCallback:callback, any:data =
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId         The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param credits           The amount of credits to give to the player.
- * @param callback          A callback which will be called when the operation is finished.
+ * @param callback		    A callback which will be called when the operation is finished.
  * @param data              Extra data value to pass to the callback.
  *
  * @noreturn
  */
-native Store_GiveCredits(accountId, credits, Store_GiveCreditsCallback:callback = INVALID_FUNCTION, any:data = 0);
+native Store_GiveCredits(accountId, credits, Store_GiveCreditsCallback:callback = Store_GiveCreditsCallback:INVALID_HANDLE, any:data = 0);
 
 /**
  * Gives multiple players a specific amount of credits. 
@@ -631,7 +618,7 @@ native Store_GiveCredits(accountId, credits, Store_GiveCreditsCallback:callback 
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountIds        The account IDs of the players, use GetSteamAccountID to convert a client index to account ID.
+ * @param accountIds	    The account IDs of the players, use GetSteamAccountID to convert a client index to account ID.
  * @param accountIdsLength  Players count.
  * @param credits           The amount of credits to give to the players.
  *
@@ -647,7 +634,7 @@ native Store_GiveCreditsToUsers(accountIds[], accountIdsLength, credits);
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountIds        The account IDs of the players, use GetSteamAccountID to convert a client index to account ID.
+ * @param accountIds	    The account IDs of the players, use GetSteamAccountID to convert a client index to account ID.
  * @param accountIdsLength  Players count.
  * @param credits           Amount of credits per player. 
  *
@@ -660,16 +647,16 @@ native Store_GiveDifferentCreditsToUsers(accountIds[], accountIdsLength, credits
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId         The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
- * @param itemId            The ID of the item to give to the player.
- * @param acquireMethod         
- * @param callback          A callback which will be called when the operation is finished.
- * @param plugin            The plugin owner of the callback.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
+ * @param itemId 			The ID of the item to give to the player.
+ * @param acquireMethod 		
+ * @param callback		    A callback which will be called when the operation is finished.
+ * @param plugin			The plugin owner of the callback.
  * @param data              Extra data value to pass to the callback.
  *
  * @noreturn
  */
-native Store_GiveItem(accountId, itemId, Store_AcquireMethod:acquireMethod = Store_Unknown, Store_GiveCreditsCallback:callback = INVALID_FUNCTION, any:data = 0);
+native Store_GiveItem(accountId, itemId, Store_AcquireMethod:acquireMethod = Store_Unknown, Store_GiveCreditsCallback:callback = Store_GiveCreditsCallback:INVALID_HANDLE, any:data = 0);
 
 /**
  * Buys an item for a player, using his credits.
@@ -680,9 +667,9 @@ native Store_GiveItem(accountId, itemId, Store_AcquireMethod:acquireMethod = Sto
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId         The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param itemId            The ID of the item to buy.
- * @param callback          A callback which will be called when the operation is finished.
+ * @param callback		    A callback which will be called when the operation is finished.
  * @param data              Extra data value to pass to the callback.
  *
  * @noreturn
@@ -694,9 +681,9 @@ native Store_BuyItem(accountId, itemId, Store_BuyItemCallback:callback, any:data
  * 
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId         The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param itemId            The ID of the item to use.
- * @param callback          A callback which will be called when the operation is finished.
+ * @param callback		    A callback which will be called when the operation is finished.
  * @param data              Extra data value to pass to the callback.
  *
  * @noreturn
@@ -708,11 +695,11 @@ native Store_RemoveUserItem(accountId, itemId, Store_UseItemCallback:callback, a
  * 
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId         The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param itemId            The ID of the item to change equipped state to.
  * @param loadoutId         The loadout to equip the item in.
- * @param isEquipped        Whether or not the item is equipped in the specified loadout.
- * @param callback          A callback which will be called when the operation is finished.
+ * @param isEquipped		Whether or not the item is equipped in the specified loadout.
+ * @param callback		    A callback which will be called when the operation is finished.
  * @param data              Extra data value to pass to the callback.
  *
  * @noreturn
@@ -760,10 +747,10 @@ native Store_SetItemEquippedState(accountId, itemId, loadoutId, bool:isEquipped,
  *
  * As with all other store-backend methods, this method is completely asynchronous.
  *
- * @param accountId         The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
+ * @param accountId		    The account ID of the player, use GetSteamAccountID to convert a client index to account ID.
  * @param type              The category of the items you want to retrieve.
  * @param loadoutId         The loadout which will be used to determine whether an item is equipped or not.
- * @param callback          A callback which will be called when the items are loaded.
+ * @param callback		    A callback which will be called when the items are loaded.
  * @param data              Extra data value to pass to the callback.
  *
  * @noreturn
@@ -780,52 +767,51 @@ native Store_ReloadItemCache();
 
 public SharedPlugin:__pl_store_backend =
 {
-    name = "store-backend",
-    file = "store-backend.smx",
+	name = "store-backend",
+	file = "store-backend.smx",
 #if defined REQUIRE_PLUGIN
-    required = 1,
+	required = 1,
 #else
-    required = 0,
+	required = 0,
 #endif
 };
 
 #if defined REQUIRE_PLUGIN
 public __pl_store_backend_SetNTVOptional()
 {
-    MarkNativeAsOptional("Store_Register");
-    MarkNativeAsOptional("Store_RegisterClient");
+	MarkNativeAsOptional("Store_Register");
+	MarkNativeAsOptional("Store_RegisterClient");
 
-    MarkNativeAsOptional("Store_GetCategories");
-    MarkNativeAsOptional("Store_GetCategoryDisplayName");
-    MarkNativeAsOptional("Store_GetCategoryDescription");
-    //MarkNativeAsOptional("Store_GetClientAccountID");
-    
-    MarkNativeAsOptional("Store_GetItems");
-    MarkNativeAsOptional("Store_GetItemDisplayName");
-    MarkNativeAsOptional("Store_GetItemDescription");
-    MarkNativeAsOptional("Store_GetItemType");
-    MarkNativeAsOptional("Store_GetItemLoadoutSlot");
-    MarkNativeAsOptional("Store_GetItemPrice");
-    MarkNativeAsOptional("Store_IsItemTradeable");
-    MarkNativeAsOptional("Store_IsItemBuyable");
-    MarkNativeAsOptional("Store_IsItemRefundable"); 
-    MarkNativeAsOptional("Store_GetItemAttributes");
-    MarkNativeAsOptional("Store_WriteItemAttributes");
+	MarkNativeAsOptional("Store_GetCategories");
+	MarkNativeAsOptional("Store_GetCategoryDisplayName");
+	MarkNativeAsOptional("Store_GetCategoryDescription");
+	
+	MarkNativeAsOptional("Store_GetItems");
+	MarkNativeAsOptional("Store_GetItemDisplayName");
+	MarkNativeAsOptional("Store_GetItemDescription");
+	MarkNativeAsOptional("Store_GetItemType");
+	MarkNativeAsOptional("Store_GetItemLoadoutSlot");
+	MarkNativeAsOptional("Store_GetItemPrice");
+	MarkNativeAsOptional("Store_IsItemTradeable");
+	MarkNativeAsOptional("Store_IsItemBuyable");
+	MarkNativeAsOptional("Store_IsItemRefundable");	
+	MarkNativeAsOptional("Store_GetItemAttributes");
+	MarkNativeAsOptional("Store_WriteItemAttributes");
 
-    MarkNativeAsOptional("Store_GetUserItems");
-    MarkNativeAsOptional("Store_GetUserItemCount");
-    MarkNativeAsOptional("Store_GetCredits");
-    
-    MarkNativeAsOptional("Store_GiveCredits");
-    MarkNativeAsOptional("Store_GiveCreditsToUsers");
-    MarkNativeAsOptional("Store_GiveDifferentCreditsToUsers");
+	MarkNativeAsOptional("Store_GetUserItems");
+	MarkNativeAsOptional("Store_GetUserItemCount");
+	MarkNativeAsOptional("Store_GetCredits");
+	
+	MarkNativeAsOptional("Store_GiveCredits");
+	MarkNativeAsOptional("Store_GiveCreditsToUsers");
+	MarkNativeAsOptional("Store_GiveDifferentCreditsToUsers");
 
-    MarkNativeAsOptional("Store_BuyItem");
-    MarkNativeAsOptional("Store_RemoveUserItem");
-    
-    MarkNativeAsOptional("Store_SetItemEquippedState");
-    MarkNativeAsOptional("Store_GetEquippedItemsByType");
+	MarkNativeAsOptional("Store_BuyItem");
+	MarkNativeAsOptional("Store_RemoveUserItem");
+	
+	MarkNativeAsOptional("Store_SetItemEquippedState");
+	MarkNativeAsOptional("Store_GetEquippedItemsByType");
 
-    MarkNativeAsOptional("Store_ReloadItemCache");
+	MarkNativeAsOptional("Store_ReloadItemCache");
 }
 #endif

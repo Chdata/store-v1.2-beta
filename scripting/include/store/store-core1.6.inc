@@ -3,21 +3,20 @@
 #endif
 #define _store_core_included
 
-// This fork is updated with Drixevel's fork and some extra changes related to my own community.
-#define STORE_VERSION "1.2-chdata"
+#define STORE_VERSION "1.2-beta"
 #define STORE_PREFIX "{lightsteelblue}[DATA] {linen}"
 #define STORE_PREFIX_NOCOLOR "[DATA] "
 
-typeset Store_MenuItemClickCallback
+funcenum Store_MenuItemClickCallback
 {
-	function void(int client, const char[] value);
+	public(client, const String:value[])
 }
 
-typeset Store_ChatCommandCallback
+funcenum Store_ChatCommandCallback
 {
-	function void(int client);
-	function void(int client, const char[] command);
-	function void(int client, const char[] command, const char[] args);
+	public(client),
+	public(client, const String:command[]),
+	public(client, const String:command[], const String:args[])
 }
 
 forward Action:Store_OnChatCommand(client, const String:command[], const String:args[]);
@@ -33,7 +32,7 @@ forward Store_OnChatCommand_Post(client, const String:command[], const String:ar
 native Store_OpenMainMenu(client);
 
 /**
- * Adds an item to the main menu.
+ * Adds an item to the main menu. 
  *
  * @param displayName		The text of the item, as it is shown to the player.
  * @param description		A short description of the item.
@@ -46,7 +45,7 @@ native Store_OpenMainMenu(client);
 native Store_AddMainMenuItem(const String:displayName[], const String:description[] = "", const String:value[] = "", Store_MenuItemClickCallback:callback, order = 32);
 
 /**
- * Retrieve currency name as it is defined in the core config file.
+ * Retrieve currency name as it is defined in the core condig file.
  *
  * @param currencyName		Buffer to store the currency name in.
  * @param maxLength			Maximum length of string buffer.
@@ -54,16 +53,6 @@ native Store_AddMainMenuItem(const String:displayName[], const String:descriptio
  * @noreturn
  */
 native Store_GetCurrencyName(String:currencyName[], maxLength);
-
-/**
-* Retrieve sql config entry as it is defined in the core config file.
-*
-* @param sqlEntryName		Buffer to store the sql entry name in.
-* @param maxLength			Maximum length of string buffer.
-*
-* @noreturn
-*/
-native Store_GetSQLEntry(String:sqlEntryName[], maxLength);
 
 /**
  * Registers commands with the store plugin.
@@ -92,7 +81,6 @@ public __pl_store_SetNTVOptional()
 	MarkNativeAsOptional("Store_OpenMainMenu");
 	MarkNativeAsOptional("Store_AddMainMenuItem");
 	MarkNativeAsOptional("Store_GetCurrencyName");
-	MarkNativeAsOptional("Store_GetSQLEntry");
 	MarkNativeAsOptional("Store_RegisterChatCommands");
 }
 #endif

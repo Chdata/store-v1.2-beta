@@ -74,7 +74,7 @@ public OnMapStart()
 {
 	if (g_databaseInitialized)
 	{
-		Store_GetLoadouts(INVALID_HANDLE, Store_GetItemsCallback:INVALID_HANDLE, false);
+		Store_GetLoadouts(INVALID_HANDLE, INVALID_FUNCTION, false);
 	}
 }
 
@@ -84,7 +84,7 @@ public OnMapStart()
 public Store_OnDatabaseInitialized()
 {
 	g_databaseInitialized = true;
-	Store_GetLoadouts(INVALID_HANDLE, Store_GetItemsCallback:INVALID_HANDLE, false);
+	Store_GetLoadouts(INVALID_HANDLE, INVALID_FUNCTION, false);
 }
 
 /**
