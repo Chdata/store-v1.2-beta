@@ -1,9 +1,7 @@
 #pragma semicolon 1
 
 #include <sourcemod>
-#include <store/store-core>
-#include <store/store-logging>
-#include <store/store-backend>
+#include <store>
 
 //#include <colors>
 //#include <morecolors_store>
@@ -88,7 +86,7 @@ public OnPluginStart()
 	LoadTranslations("common.phrases");
 	LoadTranslations("store.phrases");
 
-	RegAdminCmd("store_givecredits", Command_GiveCredits, ADMFLAG_ROOT, "Gives credits to a player.");
+	RegAdminCmd("sm_store_givecredits", Command_GiveCredits, ADMFLAG_ROOT, "Gives credits to a player.");
 
 	g_hOnChatCommandForward = CreateGlobalForward("Store_OnChatCommand", ET_Event, Param_Cell, Param_String, Param_String);
 	g_hOnChatCommandPostForward = CreateGlobalForward("Store_OnChatCommand_Post", ET_Ignore, Param_Cell, Param_String, Param_String);

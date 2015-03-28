@@ -1,11 +1,7 @@
 #pragma semicolon 1
 
 #include <sourcemod>
-#include <store/store-core>
-#include <store/store-backend>
-#include <store/store-inventory>
-#include <store/store-logging>
-#include <store/store-loadout>
+#include <store>
 #include <morecolors>
 
 new bool:g_hideEmptyCategories = false;
@@ -63,7 +59,7 @@ public OnPluginStart()
 
 	Store_AddMainMenuItem("Inventory", "Inventory Description", _, OnMainMenuInventoryClick, 4);
 
-	RegAdminCmd("store_itemtypes", Command_PrintItemTypes, ADMFLAG_RCON, "Prints registered item types");
+	RegAdminCmd("sm_store_itemtypes", Command_PrintItemTypes, ADMFLAG_RCON, "Prints registered item types");
 }
 
 /**
@@ -300,13 +296,13 @@ public GetUserItemsCallback(ids[], bool:equipped[], itemCount[], count, loadoutI
 	if (client == 0)
 		return;
 		
-	if (count == 0)
-	{
-		CPrintToChat(client, "%s%t", STORE_PREFIX, "No items in this category");
-		OpenInventory(client);
-		
-		return;
-	}
+	// if (count == 0) // TODO: Drixevel why?
+	// {
+	// 	CPrintToChat(client, "%s%t", STORE_PREFIX, "No items in this category");
+	// 	OpenInventory(client);
+	// 	
+	// 	return;
+	// }
 	
 	decl String:categoryDisplayName[64];
 	Store_GetCategoryDisplayName(categoryId, categoryDisplayName, sizeof(categoryDisplayName));
@@ -314,6 +310,7 @@ public GetUserItemsCallback(ids[], bool:equipped[], itemCount[], count, loadoutI
 	new Handle:menu = CreateMenu(InventoryCategoryMenuSelectHandle);
 	SetMenuTitle(menu, "%T - %s\n \n", "Inventory", client, categoryDisplayName);
 	
+	new amount;
 	for (new item = 0; item < count; item++)
 	{
 		// TODO: Option to display descriptions	
@@ -334,7 +331,13 @@ public GetUserItemsCallback(ids[], bool:equipped[], itemCount[], count, loadoutI
 		Format(value, sizeof(value), "%b,%d", equipped[item], ids[item]);
 		
 		AddMenuItem(menu, value, text);
+		amount++;
 	}
+
+	if (amount <= 0)
+	{
+		CPrintToChat(client, "%s%t", STORE_PREFIX, "Inventory category is empty");
+ 	}
 
 	SetMenuExitBackButton(menu, true);
 	
@@ -343,7 +346,7 @@ public GetUserItemsCallback(ids[], bool:equipped[], itemCount[], count, loadoutI
 	else
 		DisplayMenuAtItem(menu, client, slot, 0);
 
-	categories_menu[client] = INVALID_HANDLE;
+	//categories_menu[client] = INVALID_HANDLE;
 }
 
 public InventoryCategoryMenuSelectHandle(Handle:menu, MenuAction:action, client, slot)

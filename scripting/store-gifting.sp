@@ -308,6 +308,7 @@ OpenGiftingMenu(client)
     AddMenuItem(menu, "credits", "Bits");
     if (IsPlayerOwner(client)) AddMenuItem(menu, "item", item);
 
+    SetMenuExitBackButton(menu, true);
     DisplayMenu(menu, client, MENU_TIME_FOREVER);
 }
 
@@ -345,7 +346,7 @@ public GiftTypeMenuSelectHandle(Handle:menu, MenuAction:action, client, slot)
     }
     else if (action == MenuAction_Cancel)
     {
-        if (slot == MenuCancel_Exit)
+        if (slot == MenuCancel_ExitBack)
         {
             Store_OpenMainMenu(client);
         }

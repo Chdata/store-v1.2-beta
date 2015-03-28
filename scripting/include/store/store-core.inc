@@ -5,6 +5,7 @@
 
 #define STORE_VERSION "1.2-beta"
 #define STORE_PREFIX "{lightsteelblue}[DATA] {linen}"
+#define STORE_PREFIX_NOCOLOR "[DATA] "
 
 funcenum Store_MenuItemClickCallback
 {
