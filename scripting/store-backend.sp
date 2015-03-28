@@ -2,6 +2,7 @@
 
 #include <sourcemod>
 #include <store>
+#include <morecolors>
 
 #define MAX_CATEGORIES	32
 #define MAX_ITEMS 		1024
@@ -318,7 +319,7 @@ public T_GetCategoriesCallback(Handle:owner, Handle:hndl, const String:error[], 
 		g_categoryCount++;
 	}
 	
-	GetCategories(callback, plugin, true, arg);
+	GetCategories(-1, callback, plugin, true, arg);
 }
 
 GetCategoryIndex(id)

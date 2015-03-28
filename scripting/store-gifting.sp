@@ -12,7 +12,7 @@
 #include <store>
 #include <morecolors>
 //#include <smartdm>
-#include "include/chdata.sp"
+#include <chdata>
 
 #define MAX_CREDIT_CHOICES 100
 
