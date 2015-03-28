@@ -1371,7 +1371,7 @@ public T_UnequipItemCallback(Handle:owner, Handle:hndl, const String:error[], an
 GetEquippedItemsByType(accountId, const String:type[], loadoutId, Store_GetItemsCallback:callback, Handle:plugin = INVALID_HANDLE, any:data = 0)
 {
 	new Handle:pack = CreateDataPack();
-	WritePackCell(pack, _:callback);
+	WritePackFunction(pack, callback);
 	WritePackCell(pack, _:plugin);
 	WritePackCell(pack, _:data);
 	
