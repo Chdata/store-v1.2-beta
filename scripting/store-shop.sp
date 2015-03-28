@@ -89,7 +89,7 @@ LoadConfig()
 	}
 
 	decl String:menuCommands[255];
-	KvGetString(kv, "shop_commands", menuCommands, sizeof(menuCommands), "!shop /shop");
+	KvGetString(kv, "shop_commands", menuCommands, sizeof(menuCommands), "!shop /shop !buy /buy");
 	Store_RegisterChatCommands(menuCommands, ChatCommand_OpenShop);
 	
 	g_confirmItemPurchase = bool:KvGetNum(kv, "confirm_item_purchase", 0);
@@ -281,14 +281,21 @@ public GetItemsCallback(ids[], count, any:pack)
 	{		
 		decl String:displayName[64];
 		decl String:description[128];
-		decl String:text[sizeof(displayName) + sizeof(description) + 5];		
+		//decl String:itemName[STORE_MAX_NAME_LENGTH];
+		decl String:text[sizeof(displayName) + sizeof(description) + 5];
 
 		Store_GetItemDisplayName(ids[item], displayName, sizeof(displayName));
 
-		if(!g_hideCategoryDescriptions){
+		if(!g_hideCategoryDescriptions)
+		{
 			Store_GetItemDescription(ids[item], description, sizeof(description));
 			Format(text, sizeof(text), "%s [%d %s]\n%s", displayName, Store_GetItemPrice(ids[item]), g_currencyName, description);
-		} else {
+		}
+		else
+		{
+			//Store_GetItemName(ids[item], itemName, sizeof(itemName));
+			//Store_GetUserItemCount(GetSteamAccountID(client), itemName, PrepareShopMenu_ItemCountCallBack);
+
 			Format(text, sizeof(text), "%s [%d %s]", displayName, Store_GetItemPrice(ids[item]), g_currencyName);
 		}
 		
