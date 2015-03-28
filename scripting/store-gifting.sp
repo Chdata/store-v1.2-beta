@@ -111,7 +111,7 @@ LoadConfig()
     }
 
     decl String:menuCommands[255];
-    KvGetString(kv, "gifting_commands", menuCommands, sizeof(menuCommands));
+    KvGetString(kv, "accept_commands", menuCommands, sizeof(menuCommands));
     ExplodeString(menuCommands, " ", g_menuCommands, sizeof(g_menuCommands), sizeof(g_menuCommands[]));
     
     new String:creditChoices[MAX_CREDIT_CHOICES][10];

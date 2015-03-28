@@ -53,6 +53,9 @@ public Plugin:myinfo =
  */
 public OnPluginStart()
 {
+	g_itemTypes = CreateArray();
+	g_itemTypeNameIndex = CreateTrie();
+
 	LoadConfig();
 
 	LoadTranslations("common.phrases");
@@ -154,6 +157,7 @@ public GetCategoriesCallback(ids[], count, any:serial)
 	categories_menu[client] = CreateMenu(InventoryMenuSelectHandle);
 	SetMenuTitle(categories_menu[client], "%T\n \n", "Inventory", client);
 		
+	new amount = 0;
 	for (new category = 0; category < count; category++)
 	{
 		decl String:requiredPlugin[STORE_MAX_REQUIREPLUGIN_LENGTH];
@@ -173,7 +177,13 @@ public GetCategoriesCallback(ids[], count, any:serial)
 		SetTrieValue(filter, "flags", GetUserFlagBits(client));
 
 		Store_GetUserItems(filter, GetSteamAccountID(client), Store_GetClientLoadout(client), GetItemsForCategoryCallback, pack);
+		amount++;
 	}
+
+	if (amount == 0)
+	{
+		CPrintToChat(client, "%s%t", STORE_PREFIX, "No categories available");
+ 	}
 }
 
 public GetItemsForCategoryCallback(ids[], bool:equipped[], itemCount[], count, loadoutId, any:pack)
@@ -190,6 +200,11 @@ public GetItemsForCategoryCallback(ids[], bool:equipped[], itemCount[], count, l
 	
 	if (client <= 0)
 		return;
+
+	if (count <= 0)
+	{
+		CPrintToChat(client, "%s%t", STORE_PREFIX, "Inventory category is empty");
+	}
 
 	if (g_hideEmptyCategories && count <= 0)
 	{
